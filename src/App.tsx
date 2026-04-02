@@ -1,112 +1,120 @@
-import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import ParticlesBackground from './ParticlesBackground';
 import CustomCursor from './CustomCursor';
 
-// Atualizamos o title para aceitar ReactNode, permitindo passar HTML (como o span interativo)
-interface StepSectionProps {
-  title: string | ReactNode;
+interface SlideProps {
+  number: string;
+  title: string;
   subtitle: string;
-  children?: ReactNode;
-  align?: 'left' | 'center' | 'right';
+  bgWord: string; // A palavra gigante que fica no fundo
+  align: 'top-left' | 'bottom-right' | 'split';
 }
 
-const StepSection = ({ title, subtitle, children, align = 'center' }: StepSectionProps) => {
-  const alignmentClass =
-    align === 'left' ? 'items-start text-left' :
-      align === 'right' ? 'items-end text-right' :
-        'items-center text-center';
-
+const Slide = ({ number, title, subtitle, bgWord, align }: SlideProps) => {
   return (
-    <section className="relative h-screen w-full flex flex-col justify-center snap-start overflow-hidden px-8 md:px-24">
-      <motion.div
-        style={{ perspective: 1200 }}
-        className={`z-20 w-full max-w-4xl flex flex-col ${alignmentClass}`}
-      >
-        <motion.h2
-          initial={{ opacity: 0, rotateX: 90, y: 50 }}
-          whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
-          transition={{ duration: 1, type: "spring", bounce: 0.4 }}
-          viewport={{ once: false, amount: 0.5 }}
-          className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 tracking-tighter mb-6"
-        >
-          {title}
-        </motion.h2>
+    <section className="relative h-screen w-screen shrink-0 flex items-center justify-center overflow-hidden px-10 md:px-24 border-r border-white/5">
 
-        <motion.p
-          initial={{ opacity: 0, x: align === 'left' ? -100 : 100 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          viewport={{ once: false, amount: 0.5 }}
-          className="text-2xl md:text-3xl text-gray-400 font-light max-w-2xl"
-        >
-          {subtitle}
-        </motion.p>
+      {/* TIPOGRAFIA GIGANTE DE FUNDO (PARALLAX) */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 z-0">
+        <h1 className="text-[15vw] font-black text-transparent whitespace-nowrap" style={{ WebkitTextStroke: '2px white' }}>
+          {bgWord}
+        </h1>
+      </div>
 
-        {children && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, rotateZ: -10 }}
-            whileInView={{ opacity: 1, scale: 1, rotateZ: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, type: "spring" }}
-            viewport={{ once: false }}
-            className="mt-12"
-          >
-            {children}
-          </motion.div>
+      {/* LAYOUT ASSIMÉTRICO */}
+      <div className="relative z-10 w-full h-full flex flex-col pt-32 pb-24">
+
+        {/* Número da Etapa (Fixo no topo esquerdo) */}
+        <div className="absolute top-20 left-10 md:left-24 text-zinc-600 font-mono text-sm tracking-[0.3em]">
+          [ {number} / 10 ]
+        </div>
+
+        {align === 'bottom-right' && (
+          <div className="mt-auto ml-auto max-w-lg text-right">
+            <h2 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-6">{title}</h2>
+            <p className="text-xl md:text-2xl text-zinc-400 font-light backdrop-blur-md bg-black/10 p-4 rounded-2xl">{subtitle}</p>
+          </div>
         )}
-      </motion.div>
+
+        {align === 'top-left' && (
+          <div className="mt-20 mr-auto max-w-lg text-left">
+            <h2 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-6">{title}</h2>
+            <p className="text-xl md:text-2xl text-zinc-400 font-light backdrop-blur-md bg-black/10 p-4 rounded-2xl">{subtitle}</p>
+          </div>
+        )}
+
+        {align === 'split' && (
+          <div className="m-auto w-full flex flex-col md:flex-row justify-between items-center gap-10">
+            <h2 className="text-7xl md:text-9xl font-black text-white tracking-tighter">{title}</h2>
+            <p className="text-xl md:text-2xl text-zinc-400 font-light max-w-sm text-right backdrop-blur-md bg-black/10 p-4 rounded-2xl">{subtitle}</p>
+          </div>
+        )}
+
+      </div>
     </section>
   );
 };
 
 export default function App() {
-  return (
-    // 1. O id="main-scroll-container" conecta o Three.js à rolagem
-    // 2. A classe "cursor-none" esconde o mouse padrão do sistema
-    // 3. Fundo 100% Dark Mode para destacar o roxo
-    <main
-      id="main-scroll-container"
-      className="relative h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-zinc-950 font-sans cursor-none"
-    >
+  const containerRef = useRef<HTMLDivElement>(null);
 
-      {/* INJETANDO O CURSOR DE ALTA PERFORMANCE */}
+  // A MÁGICA: Captura o scroll vertical da página
+  const { scrollYProgress } = useScroll({ target: containerRef });
+
+  // E converte isso para puxar as telas para a esquerda (como um carrossel horizontal)
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-90%"]); // -90% porque são 10 telas
+
+  // Barra de progresso conectada
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    return scrollYProgress.on('change', (latest) => setProgress(latest * 100));
+  }, [scrollYProgress]);
+
+  return (
+    // O container pai precisa ser MUITO ALTO (1000vh) para criar bastante rolagem
+    <main ref={containerRef} className="relative h-[1000vh] bg-[#050505] cursor-none font-sans">
+
       <CustomCursor />
 
-      {/* INJETANDO A SIMULAÇÃO 3D NO FUNDO */}
-      <ParticlesBackground />
+      {/* Barra de Progresso Perimetral (Fina e Minimalista no topo) */}
+      <div className="fixed top-0 left-0 w-full h-1 z-50 bg-white/5">
+        <div className="h-full bg-white transition-all duration-300 ease-out shadow-[0_0_15px_rgba(255,255,255,0.8)]" style={{ width: `${progress}%` }} />
+      </div>
 
-      {/* O CONTEÚDO */}
-      <StepSection
-        title="Formação"
-        subtitle="3000 vértices renderizados pela GPU. Eles formam uma esfera suave que aguarda o seu comando."
-        align="left"
-      />
+      {/* Container "Fixo" que prende a tela enquanto você rola */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
 
-      <StepSection
-        title="Mutação Geométrica"
-        subtitle="Enquanto você chega aqui, a matemática recria as coordenadas em tempo real, colapsando a esfera em um cubo."
-        align="right"
-      />
+        {/* O MOTOR 3D (Roda atrás de tudo) */}
+        <ParticlesBackground />
 
-      <StepSection
-        // Aqui usamos o span com a classe 'interativo' para o cursor reagir!
-        title={<span className="interativo">O Caos</span>}
-        subtitle="A ordem se desfaz. As partículas explodem no espaço 3D, abraçando toda a tela."
-        align="center"
-      />
+        {/* O "Trilho" horizontal que desliza para o lado */}
+        <motion.div style={{ x }} className="relative z-10 flex w-[1000vw] h-full">
 
-      <StepSection
-        title="O Gran Finale"
-        subtitle="Você acabou de integrar o ecossistema do React Three Fiber com Framer Motion e Tailwind."
-        align="left"
-      >
-        <button className="relative px-12 py-5 bg-white text-zinc-950 text-lg font-extrabold rounded-none overflow-hidden group cursor-none">
-          {/* Classe 'interativo' no texto do botão também */}
-          <span className="relative z-10 interativo">Explorar CódigoFonte</span>
-          <div className="absolute inset-0 h-full w-0 bg-violet-500 transition-all duration-300 ease-out group-hover:w-full z-0" />
-        </button>
-      </StepSection>
+          <Slide number="01" title="A Gênese" bgWord="ORIGIN" subtitle="Tudo começa com um ponto. Role para baixo e veja o mundo viajar horizontalmente." align="bottom-right" />
+          <Slide number="02" title="Expansão" bgWord="EXPAND" subtitle="Segure o clique para sugar a matéria. A gravidade achata a forma em um anel estelar." align="top-left" />
+          <Slide number="03" title="Código" bgWord="NATURE" subtitle="A matemática simula a vida. Hélices orgânicas do DNA em suspensão." align="split" />
+          <Slide number="04" title="O Racional" bgWord="LOGIC" subtitle="Dê um scroll rápido. Repare como as cores da lente se dividem na borda da tela." align="bottom-right" />
+          <Slide number="05" title="Paradoxo" bgWord="LOOP" subtitle="Superfícies contínuas. A luz pulsa na geometria do Torus perpétuo." align="top-left" />
+          <Slide number="06" title="O Oceano" bgWord="FLUID" subtitle="A matéria diminui. Um grid fluído dança sob seus olhos através do espaço." align="split" />
+          <Slide number="07" title="A Fenda" bgWord="TUNNEL" subtitle="As paredes se fecham. A câmera varre o interior do cilindro quântico." align="bottom-right" />
+          <Slide number="08" title="Gargantua" bgWord="EVENT" subtitle="O horizonte de eventos. A inércia no centro é extrema, distorcendo o tempo." align="top-left" />
+          <Slide number="09" title="Ruptura" bgWord="CHAOS" subtitle="O caos toma conta. As regras geométricas entram em colapso total." align="split" />
 
+          <section className="relative h-screen w-screen shrink-0 flex flex-col items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5 z-0">
+              <h1 className="text-[15vw] font-black text-transparent whitespace-nowrap" style={{ WebkitTextStroke: '2px white' }}>FINALE</h1>
+            </div>
+            <div className="relative z-10 text-center mt-24">
+              <h2 className="text-5xl font-black text-white tracking-widest mb-10">O PONTO PÁLIDO</h2>
+              <button className="px-12 py-5 border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-500 uppercase tracking-[0.2em] text-sm">
+                Voltar ao Início
+              </button>
+            </div>
+          </section>
+
+        </motion.div>
+      </div>
     </main>
   );
 }
