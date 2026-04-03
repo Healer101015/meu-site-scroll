@@ -1,15 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Inter:wght@300;400;500&display=swap');
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
 body {
     margin: 0;
     background: radial-gradient(circle at 50% 50%, #0d0a17 0%, #020203 100%);
@@ -19,6 +9,8 @@ body {
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
     cursor: none;
+    user-select: none;
+    /* Impede a pessoa de selecionar o texto sem querer ao segurar o botão */
 }
 
 @keyframes breathingBg {
@@ -44,7 +36,169 @@ body {
 }
 
 /* =========================================
-   CURSOR DUPLO PREMIUM (ADIÇÃO 6)
+   A INTRODUÇÃO MASTER CLASS
+   ========================================= */
+.intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #020203;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.intro-spotlight {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9001;
+}
+
+.intro-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 850px;
+    padding: 40px;
+    z-index: 9002;
+}
+
+.intro-message {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    line-height: 1.7;
+    color: #e2e2e5;
+    font-style: italic;
+    font-weight: 300;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+    margin-bottom: 50px;
+}
+
+/* O pulso do coração nas palavras chave */
+.pulsing-word {
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    animation: heartPulse 1s infinite alternate ease-in-out;
+}
+
+@keyframes heartPulse {
+    0% {
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    }
+
+    100% {
+        text-shadow: 0 0 25px rgba(255, 215, 0, 0.8), 0 0 40px rgba(168, 85, 247, 0.4);
+        color: #fffacd;
+    }
+}
+
+.headphone-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    color: #ffd700;
+    opacity: 0.8;
+    margin-bottom: 50px;
+    animation: float 4s ease-in-out infinite;
+}
+
+.headphone-hint span {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.intro-instructions-minimal {
+    margin-top: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    color: #888;
+    letter-spacing: 1px;
+}
+
+.intro-instructions-minimal strong {
+    color: #ccc;
+    font-weight: 500;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Botão Magnético de Hold */
+.hold-button {
+    position: relative;
+    background: transparent;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #888;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    padding: 20px 60px;
+    border-radius: 50px;
+    cursor: none;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.hold-button.ready {
+    border-color: rgba(255, 215, 0, 0.5);
+    color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.hold-text {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+    transition: color 0.3s;
+}
+
+/* O líquido de energia dourada que enche o botão */
+.hold-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(168, 85, 247, 0.4), rgba(255, 215, 0, 0.6));
+    z-index: 1;
+    pointer-events: none;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    transition: width 0.05s linear;
+    /* Suavidade no encher */
+}
+
+/* Quando o usuário passa o mouse por cima */
+.hold-button.ready:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+}
+
+.hold-button.ready:hover .hold-text {
+    color: #fff;
+}
+
+/* =========================================
+   O RESTO DO CSS MANTÉM-SE IGUAL (Cursor, Cards, etc)
    ========================================= */
 .custom-cursor-dot {
     position: fixed;
@@ -55,7 +209,7 @@ body {
     background: #ffd700;
     border-radius: 50%;
     pointer-events: none;
-    z-index: 101;
+    z-index: 9999;
     box-shadow: 0 0 10px #ffd700;
 }
 
@@ -72,7 +226,7 @@ body {
     border: 1px solid rgba(255, 215, 0, 0.4);
     border-radius: 50%;
     pointer-events: none;
-    z-index: 100;
+    z-index: 9998;
     transition: width 0.3s ease, height 0.3s ease, background 0.3s ease, border 0.3s ease;
 }
 
@@ -85,36 +239,6 @@ body {
     mix-blend-mode: exclusion;
 }
 
-/* =========================================
-   NAVEGAÇÃO LATERAL (ADIÇÃO 3)
-   ========================================= */
-.side-nav {
-    position: fixed;
-    right: 40px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    z-index: 90;
-}
-
-.nav-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: all 0.4s ease;
-}
-
-.nav-dot.active {
-    background: #ffd700;
-    height: 24px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-}
-
-/* Resto dos controles UI */
 .audio-btn {
     position: fixed;
     top: 30px;
@@ -266,7 +390,6 @@ body {
     max-width: 650px;
 }
 
-/* ADIÇÃO 2: Cartões em 3D Real no CSS */
 .story-section {
     pointer-events: auto;
     position: relative;
@@ -302,7 +425,6 @@ body {
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 255, 255, 0) 30%, rgba(168, 85, 247, 0.2) 70%, rgba(168, 85, 247, 0.5));
 }
 
-/* ADIÇÃO 4: Palavras Iluminadas */
 .highlight-word {
     color: #ffd700;
     font-weight: 500;
@@ -362,100 +484,4 @@ body {
     color: transparent;
     -webkit-text-stroke: 1px rgba(255, 215, 0, 0.8);
     text-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
-}
-
-/* TELA DE ABERTURA */
-.intro-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #020203;
-    z-index: 9000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: auto;
-}
-
-.intro-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    max-width: 800px;
-    padding: 40px;
-}
-
-.intro-message {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.2rem;
-    line-height: 1.6;
-    color: #e2e2e5;
-    font-style: italic;
-    font-weight: 300;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-    margin-bottom: 60px;
-}
-
-.intro-instructions {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 25px 40px;
-    margin-bottom: 50px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.intro-instructions p {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #ffd700;
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-weight: 500;
-}
-
-.intro-instructions ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    text-align: center;
-}
-
-.intro-instructions li {
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    color: #a1a1aa;
-    margin-bottom: 10px;
-    font-weight: 300;
-}
-
-.intro-instructions strong {
-    color: #ffffff;
-    font-weight: 500;
-}
-
-.start-button {
-    background: transparent;
-    border: 1px solid rgba(255, 215, 0, 0.5);
-    color: #ffd700;
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    padding: 16px 40px;
-    border-radius: 40px;
-    cursor: pointer;
-    transition: background 0.3s ease, border-color 0.3s ease;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-}
-
-.start-button:hover {
-    background: rgba(255, 215, 0, 0.1);
-    border-color: #ffd700;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
 }
