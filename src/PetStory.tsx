@@ -1,16 +1,14 @@
 import React from 'react';
 import './PetStory.css';
+import PorquinhoScene from './PorquinhoScene'; // Importar o componente 3D
 
 export default function PetStory() {
     return (
         <div className="app-container">
 
-            {/* Área Fixa: O Modelo 3D fica aqui o tempo todo */}
+            {/* Área Fixa: O Modelo 3D fica a girar no fundo */}
             <div className="canvas-container">
-                {/* Substitua a div abaixo pelo seu Canvas 3D (ex: React Three Fiber) */}
-                <div className="placeholder-3d">
-                    <p>[ Seu Modelo 3D Aqui ]</p>
-                </div>
+                <PorquinhoScene />
             </div>
 
             {/* Área de Scroll: As histórias que passam por cima */}
